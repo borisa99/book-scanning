@@ -13,6 +13,7 @@ interface AddBookModalProps {
 }
 
 export default function AddBookModal({ handleClose, book }: AddBookModalProps) {
+  const utils = api.useContext();
   const {
     dimensions,
     title,
@@ -58,6 +59,7 @@ export default function AddBookModal({ handleClose, book }: AddBookModalProps) {
           binding,
         },
       });
+      await utils.books.getAll.invalidate();
       handleClose();
     } catch (error: unknown) {
       if (error instanceof Error) {

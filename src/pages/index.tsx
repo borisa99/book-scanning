@@ -6,8 +6,11 @@ import Navbar from "@/components/Navbar";
 import BooksTable from "@/components/BooksTable";
 import Pagination from "@/components/Pagination";
 import BooksSearch from "@/components/BooksSearch";
+import LoadingOverlay from "@/components/LoadingOverlay";
 
 const Home: NextPage = () => {
+  const { data, isLoading } = api.books.getAll.useQuery();
+
   return (
     <>
       <Head>
@@ -16,9 +19,12 @@ const Home: NextPage = () => {
       <Navbar />
       <main className="px-5">
         <div className="flex flex-col gap-y-2">
-          <BooksSearch />
-          <BooksTable />
-          <Pagination />
+          <BooksSearch disabled={isLoading} />
+          <div className="relative">
+            {isLoading && <LoadingOverlay />}
+            <BooksTable rows={data ?? []} />
+            <Pagination />
+          </div>
         </div>
       </main>
     </>
