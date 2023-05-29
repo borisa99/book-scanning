@@ -12,11 +12,27 @@ generator client {
 }
 
 model Book {
-    id        String   @id @default(cuid())
-    title     String
-    authorId  String
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+    id             String   @id @default(cuid())
+    authors        String
+    binding        String
+    date_published String
+    dimensions     String
+    edition        String
+    image          String
+    isbn           String   @unique
+    isbn10         String
+    isbn13         String
+    language       String
+    msrp           Float
+    pages          Int
+    publisher      String
+    subjects       Json
+    synopsis       String   @db.Text
+    title          String
+    title_long     String   @db.Text
+    authorId       String
+    createdAt      DateTime @default(now())
+    updatedAt      DateTime @updatedAt
 
     @@index([authorId])
 }

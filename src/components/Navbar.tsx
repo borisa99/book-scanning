@@ -3,7 +3,6 @@ import Image from "next/image";
 
 export default function Navbar() {
   const { user } = useUser();
-  console.log("🚀 ~ file: Navbar.tsx:5 ~ Navbar ~ user:", user);
 
   return (
     <div className="navbar mb-5 bg-base-300">
