@@ -1,6 +1,6 @@
 interface BookModalItem {
   title: string;
-  value: string | number;
+  value?: string | number | null;
 }
 export default function BookModalItem({ title, value }: BookModalItem) {
   return (

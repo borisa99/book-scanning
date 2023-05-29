@@ -5,7 +5,7 @@ export default function Navbar() {
   const { user } = useUser();
 
   return (
-    <div className="navbar mb-5 bg-base-300">
+    <div className="navbar mb-3 bg-base-300">
       <div className="flex-1">
         <span className="btn-ghost btn text-xl normal-case">Book Scanner</span>
       </div>

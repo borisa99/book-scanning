@@ -24,7 +24,7 @@ const tableKeys = [
 ];
 
 export default function BooksTable({ rows }: { rows: Book[] }) {
-  const formatLongString = (value?: string) => {
+  const formatLongString = (value?: string | null) => {
     return value && value.length > 40 ? value.substring(0, 40) + "..." : value;
   };
 
@@ -44,16 +44,18 @@ export default function BooksTable({ rows }: { rows: Book[] }) {
             <tr key={row.id}>
               <th>{index + 1}</th>
               <td>
-                <div className="relative h-10 w-10">
-                  <Image
-                    alt="book cover"
-                    src={row.image}
-                    className="object-cover object-center"
-                    fill
-                  />
+                <div className="relative h-9 w-9">
+                  {row.image && (
+                    <Image
+                      alt="book cover"
+                      src={row.image}
+                      className="object-cover object-center"
+                      fill
+                    />
+                  )}
                 </div>
               </td>
-              <td>{row.title}</td>
+              <td>{formatLongString(row.title)}</td>
               <td>{formatLongString(row.title_long)}</td>
               <td>{row.isbn}</td>
               <td>{row.isbn10}</td>

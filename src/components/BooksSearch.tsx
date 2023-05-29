@@ -6,7 +6,17 @@ import { api } from "@/utils/api";
 
 import AddBookModal from "./AddBookModal";
 
-export default function BooksSearch({ disabled }: { disabled: boolean }) {
+interface BooksSearchProps {
+  value: string;
+  handleChange: (value: string) => void;
+  disabled: boolean;
+}
+
+export default function BooksSearch({
+  value,
+  handleChange,
+  disabled,
+}: BooksSearchProps) {
   const [isbn, setIsbn] = useState("");
   const [showModal, setShowModal] = useState(false);
 
@@ -42,7 +52,8 @@ export default function BooksSearch({ disabled }: { disabled: boolean }) {
           type="text"
           placeholder="Search"
           className="input-bordered input w-full max-w-xs"
-          disabled={disabled}
+          value={value}
+          onChange={(e) => handleChange(e.target.value)}
         />
         <form className="flex gap-x-2" onSubmit={handleSubmit}>
           <input
@@ -53,7 +64,10 @@ export default function BooksSearch({ disabled }: { disabled: boolean }) {
             onChange={(e) => setIsbn(e.target.value)}
             disabled={disabled}
           />
-          <button className={`btn-primary btn ${isLoading ? "loading" : ""}`}>
+          <button
+            className={`btn-primary btn ${isLoading ? "loading" : ""}`}
+            disabled={disabled}
+          >
             Add New
           </button>
         </form>

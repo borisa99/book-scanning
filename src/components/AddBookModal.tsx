@@ -53,7 +53,7 @@ export default function AddBookModal({ handleClose, book }: AddBookModalProps) {
           subjects: JSON.stringify(subjects),
           date_published,
           dimensions,
-          msrp: parseFloat(msrp.toString()),
+          msrp: msrp && parseFloat(msrp.toString()),
           pages,
           synopsis,
           binding,
@@ -84,13 +84,15 @@ export default function AddBookModal({ handleClose, book }: AddBookModalProps) {
           <h3 className="mb-5 text-lg font-bold">Add a new book</h3>
           <div className="flex flex-col gap-y-3">
             <div className="relative h-40 w-full">
-              <Image
-                src={image}
-                alt="cover"
-                className="object-cover object-center"
-                sizes=""
-                fill
-              />
+              {image && (
+                <Image
+                  src={image}
+                  alt="cover"
+                  className="object-cover object-center"
+                  sizes=""
+                  fill
+                />
+              )}
             </div>
             <BookModalItem title="Title" value={title} />
             <BookModalItem title="Title Long" value={title_long} />

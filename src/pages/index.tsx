@@ -7,9 +7,12 @@ import BooksTable from "@/components/BooksTable";
 import Pagination from "@/components/Pagination";
 import BooksSearch from "@/components/BooksSearch";
 import LoadingOverlay from "@/components/LoadingOverlay";
+import { useState } from "react";
 
 const Home: NextPage = () => {
-  const { data, isLoading } = api.books.search.useQuery();
+  const [query, setQuery] = useState("");
+
+  const { data, isLoading } = api.books.search.useQuery({ query });
 
   return (
     <>
@@ -19,7 +22,11 @@ const Home: NextPage = () => {
       <Navbar />
       <main className="px-5">
         <div className="flex flex-col gap-y-2">
-          <BooksSearch disabled={isLoading} />
+          <BooksSearch
+            disabled={isLoading}
+            value={query}
+            handleChange={(val) => setQuery(val)}
+          />
           <div className="relative">
             {isLoading && <LoadingOverlay />}
             <BooksTable rows={data ?? []} />
