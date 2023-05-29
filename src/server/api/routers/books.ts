@@ -30,24 +30,37 @@ export const booksRouter = createTRPCRouter({
     .input(
       z.object({
         query: z.string(),
+        page: z.number().optional().default(1),
+        pageSize: z.number().optional().default(10),
       })
     )
-    .query(({ ctx, input }) => {
+    .query(async ({ ctx, input }) => {
       const query = input.query;
+      const page = input.page;
+      const pageSize = input.pageSize;
+      const skip = (page - 1) * pageSize;
 
-      return ctx.prisma.book.findMany({
+      const where = {
+        OR: [
+          { title: { contains: query } },
+          { title_long: { contains: query } },
+          { isbn: { contains: query } },
+          { isbn10: { contains: query } },
+          { isbn13: { contains: query } },
+        ],
+      };
+      const count = await ctx.prisma.book.count({ where });
+      const books = await ctx.prisma.book.findMany({
         take: 10,
+        skip,
         orderBy: { createdAt: "desc" },
-        where: {
-          OR: [
-            { title: { contains: query } },
-            { title_long: { contains: query } },
-            { isbn: { contains: query } },
-            { isbn10: { contains: query } },
-            { isbn13: { contains: query } },
-          ],
-        },
+        where,
       });
+
+      return {
+        count,
+        books,
+      };
     }),
   getByISBN: privateProcedure
     .input(

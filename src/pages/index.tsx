@@ -11,13 +11,19 @@ import { useState } from "react";
 
 const Home: NextPage = () => {
   const [query, setQuery] = useState("");
+  const [page, setPage] = useState(1);
+  const [pageSize] = useState(10);
 
-  const { data, isLoading } = api.books.search.useQuery({ query });
+  const { data, isLoading } = api.books.search.useQuery({
+    query,
+    page,
+    pageSize,
+  });
 
   return (
     <>
       <Head>
-        <title>Book Scaner</title>
+        <title>Book Scanner</title>
       </Head>
       <Navbar />
       <main className="px-5">
@@ -29,8 +35,13 @@ const Home: NextPage = () => {
           />
           <div className="relative">
             {isLoading && <LoadingOverlay />}
-            <BooksTable rows={data ?? []} />
-            <Pagination />
+            <BooksTable rows={data?.books ?? []} page={page} />
+            <Pagination
+              currentPage={page}
+              pageSize={pageSize}
+              totalCount={data?.count}
+              handleChange={(page) => setPage(page)}
+            />
           </div>
         </div>
       </main>

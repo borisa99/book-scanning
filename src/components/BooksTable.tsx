@@ -23,7 +23,11 @@ const tableKeys = [
   { value: "createdAt", title: "Created At" },
 ];
 
-export default function BooksTable({ rows }: { rows: Book[] }) {
+interface BooksTableProps {
+  rows: Book[];
+  page: number;
+}
+export default function BooksTable({ rows, page }: BooksTableProps) {
   const formatLongString = (value?: string | null) => {
     return value && value.length > 40 ? value.substring(0, 40) + "..." : value;
   };
