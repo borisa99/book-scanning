@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
 import { useState } from "react";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 
 import { api } from "@/utils/api";
 
@@ -35,7 +35,6 @@ export default function BooksSearch() {
           className="input-bordered input w-full max-w-xs"
         />
         <form className="flex gap-x-2" onSubmit={handleSubmit}>
-          <Toaster />
           <input
             type="text"
             placeholder={error ? error.message : "Enter ISBN"}
