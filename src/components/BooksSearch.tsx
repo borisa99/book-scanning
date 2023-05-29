@@ -11,12 +11,16 @@ export default function BooksSearch() {
   const [showModal, setShowModal] = useState(false);
 
   const enabled = false;
-  const { data, refetch, isInitialLoading, isRefetching, error } =
+  const { data, refetch, isInitialLoading, isRefetching } =
     api.books.getByISBN.useQuery({ isbn }, { enabled: enabled, retry: 0 });
   const isLoading = isInitialLoading || isRefetching;
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (!isbn) {
+      return;
+    }
+
     void refetch().then(({ data }) => {
       if (data) {
         setShowModal(true);
@@ -24,6 +28,11 @@ export default function BooksSearch() {
         toast.error("Not Found");
       }
     });
+  };
+
+  const handleClose = () => {
+    setShowModal(false);
+    setIsbn("");
   };
 
   return (
@@ -37,7 +46,7 @@ export default function BooksSearch() {
         <form className="flex gap-x-2" onSubmit={handleSubmit}>
           <input
             type="text"
-            placeholder={error ? error.message : "Enter ISBN"}
+            placeholder="Enter ISBN"
             className="input-bordered input w-full max-w-xs"
             value={isbn}
             onChange={(e) => setIsbn(e.target.value)}
@@ -48,7 +57,7 @@ export default function BooksSearch() {
         </form>
       </div>
       {showModal && data && (
-        <AddBookModal handleClose={() => setShowModal(false)} book={data} />
+        <AddBookModal handleClose={handleClose} book={data} />
       )}
     </>
   );

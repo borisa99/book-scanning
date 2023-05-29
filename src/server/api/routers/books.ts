@@ -65,6 +65,16 @@ export const booksRouter = createTRPCRouter({
       })
     )
     .mutation(async ({ ctx, input }) => {
+      const byISBN = await ctx.prisma.book.findFirst({
+        where: {
+          isbn: input.book.isbn,
+        },
+      });
+
+      if (byISBN !== null) {
+        throw new TRPCError({ message: "Already exists", code: "BAD_REQUEST" });
+      }
+
       const book = await ctx.prisma.book.create({
         data: {
           ...input.book,

@@ -1,5 +1,10 @@
-import type { Book } from "@prisma/client";
+/* eslint-disable @typescript-eslint/no-misused-promises */
 import Image from "next/image";
+import toast from "react-hot-toast";
+import type { Book } from "@prisma/client";
+
+import { api } from "@/utils/api";
+
 import BookModalItem from "./BookModalItem";
 
 interface AddBookModalProps {
@@ -12,6 +17,7 @@ export default function AddBookModal({ handleClose, book }: AddBookModalProps) {
     dimensions,
     title,
     title_long,
+    isbn,
     isbn10,
     isbn13,
     image,
@@ -24,10 +30,42 @@ export default function AddBookModal({ handleClose, book }: AddBookModalProps) {
     publisher,
     binding,
     subjects,
+    synopsis,
   } = book;
 
-  const handleSave = () => {
-    handleClose();
+  const { mutateAsync } = api.books.create.useMutation();
+
+  const handleSave = async () => {
+    try {
+      await mutateAsync({
+        book: {
+          title,
+          title_long,
+          isbn,
+          isbn10,
+          isbn13,
+          image,
+          edition,
+          language,
+          publisher,
+          authors: JSON.stringify(authors),
+          subjects: JSON.stringify(subjects),
+          date_published,
+          dimensions,
+          msrp: parseFloat(msrp.toString()),
+          pages,
+          synopsis,
+          binding,
+        },
+      });
+      handleClose();
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        toast.error(error.message);
+      } else {
+        toast.error("An error occurred");
+      }
+    }
   };
 
   return (
