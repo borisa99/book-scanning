@@ -59,7 +59,7 @@ export default function AddBookModal({ handleClose, book }: AddBookModalProps) {
           binding,
         },
       });
-      await utils.books.getAll.invalidate();
+      await utils.books.search.invalidate();
       handleClose();
     } catch (error: unknown) {
       if (error instanceof Error) {

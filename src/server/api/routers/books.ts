@@ -26,7 +26,7 @@ const bookSchema = z.object({
 });
 
 export const booksRouter = createTRPCRouter({
-  getAll: privateProcedure.query(({ ctx }) => {
+  search: privateProcedure.query(({ ctx }) => {
     return ctx.prisma.book.findMany({ orderBy: { createdAt: "desc" } });
   }),
   getByISBN: privateProcedure

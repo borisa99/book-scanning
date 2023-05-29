@@ -9,7 +9,7 @@ import BooksSearch from "@/components/BooksSearch";
 import LoadingOverlay from "@/components/LoadingOverlay";
 
 const Home: NextPage = () => {
-  const { data, isLoading } = api.books.getAll.useQuery();
+  const { data, isLoading } = api.books.search.useQuery();
 
   return (
     <>
