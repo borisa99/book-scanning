@@ -30,14 +30,14 @@ export const booksRouter = createTRPCRouter({
     .input(
       z.object({
         query: z.string(),
+        dateFrom: z.date().nullable(),
+        dateTo: z.date().nullable(),
         page: z.number().optional().default(1),
         pageSize: z.number().optional().default(10),
       })
     )
     .query(async ({ ctx, input }) => {
-      const query = input.query;
-      const page = input.page;
-      const pageSize = input.pageSize;
+      const { query, page, pageSize, dateFrom, dateTo } = input;
       const skip = (page - 1) * pageSize;
 
       const where = {
@@ -48,6 +48,12 @@ export const booksRouter = createTRPCRouter({
           { isbn10: { contains: query } },
           { isbn13: { contains: query } },
         ],
+        ...((dateFrom || dateTo) && {
+          createdAt: {
+            ...(dateFrom && { gte: dateFrom }),
+            ...(dateTo && { lte: dateTo }),
+          },
+        }),
       };
       const count = await ctx.prisma.book.count({ where });
       const books = await ctx.prisma.book.findMany({

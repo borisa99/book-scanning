@@ -1,4 +1,5 @@
 import Head from "next/head";
+import { useState } from "react";
 import { type NextPage } from "next";
 
 import { api } from "@/utils/api";
@@ -7,15 +8,25 @@ import BooksTable from "@/components/BooksTable";
 import Pagination from "@/components/Pagination";
 import BooksSearch from "@/components/BooksSearch";
 import LoadingOverlay from "@/components/LoadingOverlay";
-import { useState } from "react";
+import BookForm from "@/components/BookForm";
+
+export interface BookSearchParams {
+  query: string;
+  dateFrom: Date | null;
+  dateTo: Date | null;
+}
 
 const Home: NextPage = () => {
-  const [query, setQuery] = useState("");
+  const [params, setSearchParams] = useState<BookSearchParams>({
+    query: "",
+    dateFrom: null,
+    dateTo: null,
+  });
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
 
   const { data, isLoading } = api.books.search.useQuery({
-    query,
+    ...params,
     page,
     pageSize,
   });
@@ -28,11 +39,14 @@ const Home: NextPage = () => {
       <Navbar />
       <main className="px-5">
         <div className="flex flex-col gap-y-2">
-          <BooksSearch
-            disabled={isLoading}
-            value={query}
-            handleChange={(val) => setQuery(val)}
-          />
+          <div className="flex justify-between">
+            <BooksSearch
+              handleSubmit={(searchParams) => {
+                setSearchParams(searchParams);
+              }}
+            />
+            <BookForm disabled={isLoading} />
+          </div>
           <div className="relative">
             {isLoading && <LoadingOverlay />}
             <BooksTable rows={data?.books ?? []} page={page} />
