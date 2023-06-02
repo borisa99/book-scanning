@@ -51,7 +51,7 @@ export const booksRouter = createTRPCRouter({
       };
       const count = await ctx.prisma.book.count({ where });
       const books = await ctx.prisma.book.findMany({
-        take: 10,
+        take: pageSize,
         skip,
         orderBy: { createdAt: "desc" },
         where,

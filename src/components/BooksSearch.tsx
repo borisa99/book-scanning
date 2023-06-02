@@ -48,13 +48,15 @@ export default function BooksSearch({
   return (
     <>
       <div className="flex justify-between">
-        <input
-          type="text"
-          placeholder="Search"
-          className="input-bordered input w-full max-w-xs"
-          value={value}
+        <form onSubmit={(e) => e.preventDefault()} className="">
+          <input
+            type="text"
+            placeholder="Search"
+            className="input-bordered input w-full max-w-xs"
+            value={value}
           onChange={(e) => handleChange(e.target.value)}
-        />
+          />
+        </form>
         <form className="flex gap-x-2" onSubmit={handleSubmit}>
           <input
             type="text"

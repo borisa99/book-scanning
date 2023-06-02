@@ -12,7 +12,7 @@ import { useState } from "react";
 const Home: NextPage = () => {
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(1);
-  const [pageSize] = useState(10);
+  const [pageSize, setPageSize] = useState(20);
 
   const { data, isLoading } = api.books.search.useQuery({
     query,
@@ -40,7 +40,8 @@ const Home: NextPage = () => {
               currentPage={page}
               pageSize={pageSize}
               totalCount={data?.count}
-              handleChange={(page) => setPage(page)}
+              handlePageChange={(value) => setPage(value)}
+              handlePageSizeChange={(value) => setPageSize(value)}
             />
           </div>
         </div>
