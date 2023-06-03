@@ -26,10 +26,12 @@ export default function BooksSearch({
     "mr-2 h-12 rounded-md border border-[#464B58] !bg-[#2A303C] pl-4 outline-none";
 
   const enabled = false;
-  const { refetch } = api.books.exportAsCsv.useQuery(
-    { id: selected ?? [] },
-    { enabled: enabled, retry: 0 }
-  );
+  const { refetch, isInitialLoading, isRefetching } =
+    api.books.exportAsCsv.useQuery(
+      { id: selected ?? [] },
+      { enabled: enabled, retry: 0 }
+    );
+  const exportLoading = isInitialLoading || isRefetching;
 
   const exportCsv = () => {
     void refetch().then(({ data }) => {
@@ -92,7 +94,7 @@ export default function BooksSearch({
         type="submit"
         className="btn-primary btn mr-2"
         onClick={exportCsv}
-        disabled={!selected.length}
+        disabled={!selected.length || exportLoading}
       >
         Export
       </button>
