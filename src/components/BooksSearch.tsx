@@ -1,80 +1,74 @@
-/* eslint-disable @typescript-eslint/no-misused-promises */
+import "react-datepicker/dist/react-datepicker.css";
+
 import { useState } from "react";
-import toast from "react-hot-toast";
 
-import { api } from "@/utils/api";
-
-import AddBookModal from "./AddBookModal";
+import DatePicker from "react-datepicker";
+import type { BookSearchParams } from "@/pages/index";
 
 interface BooksSearchProps {
-  value: string;
-  handleChange: (value: string) => void;
-  disabled: boolean;
+  defaultValues: BookSearchParams;
+  handleSubmit: (searchParams: BookSearchParams) => void;
 }
 
 export default function BooksSearch({
-  value,
-  handleChange,
-  disabled,
+  defaultValues,
+  handleSubmit,
 }: BooksSearchProps) {
-  const [isbn, setIsbn] = useState("");
-  const [showModal, setShowModal] = useState(false);
+  const [searchParams, setSearchParams] =
+    useState<BookSearchParams>(defaultValues);
 
-  const enabled = false;
-  const { data, refetch, isInitialLoading, isRefetching } =
-    api.books.getByISBN.useQuery({ isbn }, { enabled: enabled, retry: 0 });
-  const isLoading = isInitialLoading || isRefetching;
-
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (!isbn) {
-      return;
-    }
-
-    void refetch().then(({ data }) => {
-      if (data) {
-        setShowModal(true);
-      } else {
-        toast.error("Not Found");
-      }
-    });
-  };
-
-  const handleClose = () => {
-    setShowModal(false);
-    setIsbn("");
-  };
+  const dateClassName =
+    "mr-2 h-12 rounded-md border border-[#464B58] !bg-[#2A303C] pl-4 outline-none";
 
   return (
-    <>
-      <div className="flex justify-between">
-        <input
-          type="text"
-          placeholder="Search"
-          className="input-bordered input w-full max-w-xs"
-          value={value}
-          onChange={(e) => handleChange(e.target.value)}
-        />
-        <form className="flex gap-x-2" onSubmit={handleSubmit}>
-          <input
-            type="text"
-            placeholder="Enter ISBN"
-            className="input-bordered input w-full max-w-xs"
-            value={isbn}
-            onChange={(e) => setIsbn(e.target.value)}
-            disabled={disabled}
-          />
-          <button
-            className={`btn-primary btn ${isLoading ? "loading" : ""}`}
-            disabled={disabled}
-          >
-            Add New
-          </button>
-        </form>
-      </div>
-      {showModal && data && (
-        <AddBookModal handleClose={handleClose} book={data} />
-      )}
-    </>
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        handleSubmit(searchParams);
+      }}
+      className="flex"
+    >
+      <input
+        type="text"
+        placeholder="Search"
+        className="input-bordered input mr-2 w-full max-w-xs"
+        value={searchParams.query}
+        onChange={(e) =>
+          setSearchParams((prev) => ({ ...prev, query: e.target.value }))
+        }
+      />
+      <DatePicker
+        selected={searchParams.dateFrom}
+        dateFormat="yyyy/MM/dd"
+        placeholderText="Date From"
+        className={dateClassName}
+        onChange={(date) =>
+          setSearchParams((prev) => ({ ...prev, dateFrom: date }))
+        }
+      />
+      <DatePicker
+        selected={searchParams.dateTo}
+        dateFormat="yyyy/MM/dd"
+        placeholderText="Date To"
+        className={dateClassName}
+        onChange={(date) =>
+          setSearchParams((prev) => ({ ...prev, dateTo: date }))
+        }
+      />
+
+      <button type="submit" className="btn-primary btn mr-2">
+        Filter
+      </button>
+      <button
+        type="button"
+        className="btn"
+        onClick={() => {
+          setSearchParams(defaultValues);
+          handleSubmit(defaultValues);
+        }}
+      >
+        Clear
+      </button>
+    </form>
   );
 }
