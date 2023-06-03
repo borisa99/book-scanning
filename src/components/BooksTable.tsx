@@ -26,14 +26,21 @@ const tableKeys = [
 
 interface BooksTableProps {
   rows: Book[];
-  page: number;
+  handleSelectedChange: (value: string[]) => void;
 }
-export default function BooksTable({ rows, page }: BooksTableProps) {
+export default function BooksTable({
+  rows,
+  handleSelectedChange,
+}: BooksTableProps) {
   const [selected, setSelected] = useState<string[]>([]);
 
   const formatLongString = (value?: string | null) => {
     return value && value.length > 40 ? value.substring(0, 40) + "..." : value;
   };
+
+  useEffect(() => {
+    handleSelectedChange(selected);
+  }, [selected, handleSelectedChange]);
 
   return (
     <div className="h-[calc(100vh-12.5rem)] overflow-x-auto">
