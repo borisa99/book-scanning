@@ -16,12 +16,15 @@ export interface BookSearchParams {
   dateTo: Date | null;
 }
 
+export const defaultSearchParams: BookSearchParams = {
+  query: "",
+  dateFrom: null,
+  dateTo: null,
+};
+
 const Home: NextPage = () => {
-  const [params, setSearchParams] = useState<BookSearchParams>({
-    query: "",
-    dateFrom: null,
-    dateTo: null,
-  });
+  const [params, setSearchParams] =
+    useState<BookSearchParams>(defaultSearchParams);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
 
@@ -41,6 +44,7 @@ const Home: NextPage = () => {
         <div className="flex flex-col gap-y-2">
           <div className="flex justify-between">
             <BooksSearch
+              defaultValues={defaultSearchParams}
               handleSubmit={(searchParams) => {
                 setSearchParams(searchParams);
               }}
