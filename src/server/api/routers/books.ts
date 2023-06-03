@@ -4,6 +4,8 @@ import axios from "axios";
 import { createTRPCRouter, privateProcedure } from "@/server/api/trpc";
 import { TRPCError } from "@trpc/server";
 import type { Book } from "@prisma/client";
+import { JSONObject, JSONValue } from "superjson/dist/types";
+import { convertToCsv } from "@/utils/helpers";
 
 const bookSchema = z.object({
   dimensions: z.string().optional().nullable(),
@@ -122,5 +124,28 @@ export const booksRouter = createTRPCRouter({
       });
 
       return book;
+    }),
+  exportAsCsv: privateProcedure
+    .input(
+      z.object({
+        isbn: z.string(),
+      })
+    )
+    .query(async ({ input, ctx }) => {
+      try {
+        const { isbn } = input;
+
+        const book = await ctx.prisma.book.findFirst({
+          where: {
+            isbn,
+          },
+        });
+
+        const csv = convertToCsv(book);
+
+        return csv;
+      } catch (error) {
+        throw new TRPCError({ code: "NOT_FOUND" });
+      }
     }),
 });

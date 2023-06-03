@@ -34,6 +34,26 @@ const Home: NextPage = () => {
     pageSize,
   });
 
+  const enabled = false;
+  const {
+    data: exportAsCsv,
+    refetch,
+    isInitialLoading,
+    isRefetching,
+  } = api.books.exportAsCsv.useQuery(
+    { isbn: data?.books[0]?.isbn ?? "" },
+    { enabled: enabled, retry: 0 }
+  );
+
+  const handleSubmit = () => {
+    void refetch().then(({ data }) => {
+      if (data) {
+        console.log(data);
+      }
+    });
+    console.log("ee");
+  };
+
   return (
     <>
       <Head>
@@ -65,6 +85,7 @@ const Home: NextPage = () => {
               handlePageSizeChange={(value) => setPageSize(value)}
             />
           </div>
+          <button onClick={() => handleSubmit()}>Eldar</button>
         </div>
       </main>
     </>
