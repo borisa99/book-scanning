@@ -1,9 +1,11 @@
 import "react-datepicker/dist/react-datepicker.css";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import DatePicker from "react-datepicker";
 import type { BookSearchParams } from "@/pages/index";
+import useBooks from "@/hooks/useBooks";
+import { api } from "@/utils/api";
 
 interface BooksSearchProps {
   defaultValues: BookSearchParams;
@@ -14,11 +16,27 @@ export default function BooksSearch({
   defaultValues,
   handleSubmit,
 }: BooksSearchProps) {
+  const { selected } = useBooks();
+
   const [searchParams, setSearchParams] =
     useState<BookSearchParams>(defaultValues);
 
   const dateClassName =
     "mr-2 h-12 rounded-md border border-[#464B58] !bg-[#2A303C] pl-4 outline-none";
+
+  const enabled = false;
+  const { refetch } = api.books.exportAsCsv.useQuery(
+    { id: selected ?? [] },
+    { enabled: enabled, retry: 0 }
+  );
+
+  const exportCsv = () => {
+    void refetch().then(({ data }) => {
+      if (data) {
+        console.log(data, "DATA");
+      }
+    });
+  };
 
   return (
     <form
@@ -55,7 +73,14 @@ export default function BooksSearch({
           setSearchParams((prev) => ({ ...prev, dateTo: date }))
         }
       />
-
+      <button
+        type="submit"
+        className="btn-primary btn mr-2"
+        onClick={exportCsv}
+        disabled={!selected.length}
+      >
+        Export
+      </button>
       <button type="submit" className="btn-primary btn mr-2">
         Filter
       </button>

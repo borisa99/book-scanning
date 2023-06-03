@@ -9,6 +9,7 @@ import Pagination from "@/components/Pagination";
 import BooksSearch from "@/components/BooksSearch";
 import LoadingOverlay from "@/components/LoadingOverlay";
 import BookForm from "@/components/BookForm";
+import BooksProvider from "@/context/BooksContext";
 
 export interface BookSearchParams {
   query: string;
@@ -34,26 +35,6 @@ const Home: NextPage = () => {
     pageSize,
   });
 
-  const enabled = false;
-  const {
-    data: exportAsCsv,
-    refetch,
-    isInitialLoading,
-    isRefetching,
-  } = api.books.exportAsCsv.useQuery(
-    { isbn: data?.books[0]?.isbn ?? "" },
-    { enabled: enabled, retry: 0 }
-  );
-
-  const handleSubmit = () => {
-    void refetch().then(({ data }) => {
-      if (data) {
-        console.log(data);
-      }
-    });
-    console.log("ee");
-  };
-
   return (
     <>
       <Head>
@@ -61,32 +42,33 @@ const Home: NextPage = () => {
       </Head>
       <Navbar />
       <main className="px-5">
-        <div className="flex flex-col gap-y-2">
-          <div className="flex justify-between">
-            <BooksSearch
-              defaultValues={defaultSearchParams}
-              handleSubmit={(searchParams) => {
-                setSearchParams(searchParams);
-              }}
-            />
-            <BookForm disabled={isLoading} />
+        <BooksProvider>
+          <div className="flex flex-col gap-y-2">
+            <div className="flex justify-between">
+              <BooksSearch
+                defaultValues={defaultSearchParams}
+                handleSubmit={(searchParams) => {
+                  setSearchParams(searchParams);
+                }}
+              />
+              <BookForm disabled={isLoading} />
+            </div>
+            <div className="relative">
+              {isLoading && <LoadingOverlay />}
+              <BooksTable
+                rows={data?.books ?? []}
+                handleSelectedChange={(value) => console.log(value)}
+              />
+              <Pagination
+                currentPage={page}
+                pageSize={pageSize}
+                totalCount={data?.count}
+                handlePageChange={(value) => setPage(value)}
+                handlePageSizeChange={(value) => setPageSize(value)}
+              />
+            </div>
           </div>
-          <div className="relative">
-            {isLoading && <LoadingOverlay />}
-            <BooksTable
-              rows={data?.books ?? []}
-              handleSelectedChange={(value) => console.log(value)}
-            />
-            <Pagination
-              currentPage={page}
-              pageSize={pageSize}
-              totalCount={data?.count}
-              handlePageChange={(value) => setPage(value)}
-              handlePageSizeChange={(value) => setPageSize(value)}
-            />
-          </div>
-          <button onClick={() => handleSubmit()}>Eldar</button>
-        </div>
+        </BooksProvider>
       </main>
     </>
   );

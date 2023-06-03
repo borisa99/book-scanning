@@ -1,3 +1,4 @@
+import useBooks from "@/hooks/useBooks";
 import type { Book } from "@prisma/client";
 import dayjs from "dayjs";
 import Image from "next/image";
@@ -32,15 +33,18 @@ export default function BooksTable({
   rows,
   handleSelectedChange,
 }: BooksTableProps) {
-  const [selected, setSelected] = useState<string[]>([]);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+
+  const { setSelected } = useBooks();
 
   const formatLongString = (value?: string | null) => {
     return value && value.length > 40 ? value.substring(0, 40) + "..." : value;
   };
 
   useEffect(() => {
-    handleSelectedChange(selected);
-  }, [selected, handleSelectedChange]);
+    handleSelectedChange(selectedIds);
+    setSelected(selectedIds);
+  }, [selectedIds, handleSelectedChange, setSelected]);
 
   return (
     <div className="h-[calc(100vh-12.5rem)] overflow-x-auto">
@@ -55,7 +59,7 @@ export default function BooksTable({
         </thead>
         <tbody>
           {rows.map((row, index) => {
-            const isSelected = selected.includes(row.id);
+            const isSelected = selectedIds.includes(row.id);
             return (
               <tr key={row.id}>
                 <th>
@@ -66,11 +70,11 @@ export default function BooksTable({
                       checked={isSelected}
                       onChange={() => {
                         if (isSelected) {
-                          setSelected((prev) =>
+                          setSelectedIds((prev) =>
                             prev.filter((id) => id !== row.id)
                           );
                         } else {
-                          setSelected((prev) => [...prev, row.id]);
+                          setSelectedIds((prev) => [...prev, row.id]);
                         }
                       }}
                       className="checkbox-primary checkbox"
