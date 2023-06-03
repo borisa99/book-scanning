@@ -4,6 +4,7 @@ import axios from "axios";
 import { createTRPCRouter, privateProcedure } from "@/server/api/trpc";
 import { TRPCError } from "@trpc/server";
 import type { Book } from "@prisma/client";
+import { convertToCsvArray } from "@/utils/helpers";
 
 const bookSchema = z.object({
   dimensions: z.string().optional().nullable(),
@@ -139,9 +140,9 @@ export const booksRouter = createTRPCRouter({
           },
         });
 
-        //const csv = convertToCsv(book);
+        const csv = convertToCsvArray(book);
 
-        return book;
+        return csv;
       } catch (error) {
         throw new TRPCError({ code: "NOT_FOUND" });
       }
