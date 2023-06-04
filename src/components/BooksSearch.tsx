@@ -34,6 +34,8 @@ export default function BooksSearch({
   const exportCsv = () => {
     void refetch().then(({ data }) => {
       if (data) {
+        console.log(data);
+
         const blob = new Blob([data], { type: "text/csv;charset=utf-8;" });
 
         const url = URL.createObjectURL(blob);
