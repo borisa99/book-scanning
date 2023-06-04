@@ -2,7 +2,6 @@ import useBooks from "@/hooks/useBooks";
 import type { Book } from "@prisma/client";
 import dayjs from "dayjs";
 import Image from "next/image";
-import { useEffect, useState } from "react";
 
 const tableKeys = [
   { value: "image", title: "" },
@@ -27,31 +26,44 @@ const tableKeys = [
 
 interface BooksTableProps {
   rows: Book[];
-  handleSelectedChange: (value: string[]) => void;
 }
-export default function BooksTable({
-  rows,
-  handleSelectedChange,
-}: BooksTableProps) {
-  const [selectedIds, setSelectedIds] = useState<string[]>([]);
-
-  const { setSelected } = useBooks();
+export default function BooksTable({ rows }: BooksTableProps) {
+  const { selected, setSelected } = useBooks();
 
   const formatLongString = (value?: string | null) => {
     return value && value.length > 40 ? value.substring(0, 40) + "..." : value;
   };
 
-  useEffect(() => {
-    handleSelectedChange(selectedIds);
-    setSelected(selectedIds);
-  }, [selectedIds, handleSelectedChange, setSelected]);
+  const isSelectedAll =
+    selected.sort().join(",") ===
+    rows
+      .map((row) => row.id)
+      .sort()
+      .join(",");
+
+  const handleCheckAll = () => {
+    if (isSelectedAll) {
+      setSelected([]);
+    } else {
+      setSelected(rows.map((row) => row.id));
+    }
+  };
 
   return (
     <div className="h-[calc(100vh-12.5rem)] overflow-x-auto">
       <table className="table-compact table w-full">
         <thead className="sticky">
           <tr>
-            <th></th>
+            <th>
+              <div className="flex items-center justify-center">
+                <input
+                  type="checkbox"
+                  checked={isSelectedAll}
+                  onChange={handleCheckAll}
+                  className="checkbox-primary checkbox ml-5"
+                />
+              </div>
+            </th>
             {tableKeys.map((tKey) => (
               <th key={tKey.value}>{tKey.title}</th>
             ))}
@@ -59,7 +71,7 @@ export default function BooksTable({
         </thead>
         <tbody>
           {rows.map((row, index) => {
-            const isSelected = selectedIds.includes(row.id);
+            const isSelected = selected.includes(row.id);
             return (
               <tr key={row.id}>
                 <th>
@@ -70,11 +82,11 @@ export default function BooksTable({
                       checked={isSelected}
                       onChange={() => {
                         if (isSelected) {
-                          setSelectedIds((prev) =>
+                          setSelected((prev) =>
                             prev.filter((id) => id !== row.id)
                           );
                         } else {
-                          setSelectedIds((prev) => [...prev, row.id]);
+                          setSelected((prev) => [...prev, row.id]);
                         }
                       }}
                       className="checkbox-primary checkbox"

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 
 export interface BooksContextType {
   selected: string[];
-  setSelected: (value: string[]) => void;
+  setSelected: React.Dispatch<React.SetStateAction<string[]>>;
 }
 
 export const BooksContext = React.createContext<BooksContextType | null>(null);
