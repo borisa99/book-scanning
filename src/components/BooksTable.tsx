@@ -25,9 +25,10 @@ const tableKeys = [
 ];
 
 interface BooksTableProps {
+  isLoading: boolean;
   rows: Book[];
 }
-export default function BooksTable({ rows }: BooksTableProps) {
+export default function BooksTable({ isLoading, rows }: BooksTableProps) {
   const { selected, setSelected } = useBooks();
 
   const formatLongString = (value?: string | null) => {
@@ -35,11 +36,12 @@ export default function BooksTable({ rows }: BooksTableProps) {
   };
 
   const isSelectedAll =
+    !isLoading &&
     selected.sort().join(",") ===
-    rows
-      .map((row) => row.id)
-      .sort()
-      .join(",");
+      rows
+        .map((row) => row.id)
+        .sort()
+        .join(",");
 
   const handleCheckAll = () => {
     if (isSelectedAll) {
@@ -61,6 +63,7 @@ export default function BooksTable({ rows }: BooksTableProps) {
                   checked={isSelectedAll}
                   onChange={handleCheckAll}
                   className="checkbox-primary checkbox ml-5"
+                  disabled={isLoading}
                 />
               </div>
             </th>
@@ -89,6 +92,7 @@ export default function BooksTable({ rows }: BooksTableProps) {
                           setSelected((prev) => [...prev, row.id]);
                         }
                       }}
+                      disabled={isLoading}
                       className="checkbox-primary checkbox"
                     />
                   </div>

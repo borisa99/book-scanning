@@ -55,7 +55,7 @@ const Home: NextPage = () => {
             </div>
             <div className="relative">
               {isLoading && <LoadingOverlay />}
-              <BooksTable rows={data?.books ?? []} />
+              <BooksTable rows={data?.books ?? []} isLoading={isLoading} />
               <Pagination
                 currentPage={page}
                 pageSize={pageSize}
