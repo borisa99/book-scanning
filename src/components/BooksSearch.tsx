@@ -26,38 +26,31 @@ export default function BooksSearch({
   const dateClassName =
     "mr-2 h-12 rounded-md border border-[#464B58] !bg-[#2A303C] pl-4 outline-none";
 
-  const enabled = false;
-  const { refetch, isInitialLoading, isRefetching } =
-    api.books.exportAsCsv.useQuery(
-      { id: selected ?? [] },
-      { enabled: enabled, cacheTime: 0, retry: 0 }
-    );
-  const exportLoading = isInitialLoading || isRefetching;
+  const { mutate, isLoading: exportLoading } =
+    api.books.exportAsCsv.useMutation({
+      onSuccess(data) {
+        if (data) {
+          const blob = new Blob([data], { type: "text/csv;charset=utf-8;" });
 
-  const exportCsv = async () => {
-    try {
-      const { data } = await refetch();
-      if (data) {
-        const blob = new Blob([data], { type: "text/csv;charset=utf-8;" });
+          const url = URL.createObjectURL(blob);
 
-        const url = URL.createObjectURL(blob);
+          const link = document.createElement("a");
+          link.href = url;
+          link.setAttribute("download", "export.csv");
 
-        const link = document.createElement("a");
-        link.href = url;
-        link.setAttribute("download", "export.csv");
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
 
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-
-        URL.revokeObjectURL(url);
-      } else {
+          URL.revokeObjectURL(url);
+        } else {
+          toast.error("An error occurred.");
+        }
+      },
+      onError() {
         toast.error("An error occurred.");
-      }
-    } catch (error) {
-      toast.error("An error occurred.");
-    }
-  };
+      },
+    });
 
   return (
     <form
@@ -97,7 +90,7 @@ export default function BooksSearch({
       <button
         type="submit"
         className="btn-primary btn mr-2"
-        onClick={exportCsv}
+        onClick={() => mutate({ ids: selected })}
         disabled={!selected.length || exportLoading}
       >
         Export
