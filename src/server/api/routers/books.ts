@@ -127,21 +127,20 @@ export const booksRouter = createTRPCRouter({
   exportAsCsv: privateProcedure
     .input(
       z.object({
-        id: z.string().array(),
+        ids: z.string().array(),
       })
     )
-    .query(async ({ input, ctx }) => {
+    .mutation(async ({ input, ctx }) => {
       try {
-        const { id } = input;
+        const { ids } = input;
 
         const book = await ctx.prisma.book.findMany({
           where: {
-            id: { in: id },
+            id: { in: ids },
           },
         });
 
         const csv = convertToCsvString(book);
-        console.log("🚀 ~ file: books.ts:144 ~ .query ~ csv:", csv);
 
         return csv;
       } catch (error) {
