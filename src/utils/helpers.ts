@@ -1,6 +1,6 @@
 import type { Book } from "@prisma/client";
 
-export const convertToCsvArray = (books: (Book | null)[]) => {
+export const convertToCsvString = (books: (Book | null)[]) => {
   const csvString: string[][] = [
     [
       "*Action(SiteID=US|Country=US|Currency=USD|Version=1193|CC=UTF-8)",

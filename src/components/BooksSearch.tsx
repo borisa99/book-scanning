@@ -1,12 +1,13 @@
+/* eslint-disable @typescript-eslint/no-misused-promises */
 import "react-datepicker/dist/react-datepicker.css";
 
 import { useState } from "react";
-
+import { toast } from "react-hot-toast";
 import DatePicker from "react-datepicker";
-import type { BookSearchParams } from "@/pages/index";
+
 import useBooks from "@/hooks/useBooks";
 import { api } from "@/utils/api";
-import { toast } from "react-hot-toast";
+import type { BookSearchParams } from "@/pages/index";
 
 interface BooksSearchProps {
   defaultValues: BookSearchParams;
@@ -29,15 +30,14 @@ export default function BooksSearch({
   const { refetch, isInitialLoading, isRefetching } =
     api.books.exportAsCsv.useQuery(
       { id: selected ?? [] },
-      { enabled: enabled, retry: 0 }
+      { enabled: enabled, cacheTime: 0, retry: 0 }
     );
   const exportLoading = isInitialLoading || isRefetching;
 
-  const exportCsv = () => {
-    void refetch().then(({ data }) => {
+  const exportCsv = async () => {
+    try {
+      const { data } = await refetch();
       if (data) {
-        console.log(data);
-
         const blob = new Blob([data], { type: "text/csv;charset=utf-8;" });
 
         const url = URL.createObjectURL(blob);
@@ -54,7 +54,9 @@ export default function BooksSearch({
       } else {
         toast.error("An error occurred.");
       }
-    });
+    } catch (error) {
+      toast.error("An error occurred.");
+    }
   };
 
   return (
