@@ -1,8 +1,12 @@
+/* eslint-disable @typescript-eslint/no-misused-promises */
 import "react-datepicker/dist/react-datepicker.css";
 
 import { useState } from "react";
-
+import { toast } from "react-hot-toast";
 import DatePicker from "react-datepicker";
+
+import useBooks from "@/hooks/useBooks";
+import { api } from "@/utils/api";
 import type { BookSearchParams } from "@/pages/index";
 
 interface BooksSearchProps {
@@ -14,11 +18,46 @@ export default function BooksSearch({
   defaultValues,
   handleSubmit,
 }: BooksSearchProps) {
+  const { selected } = useBooks();
+
   const [searchParams, setSearchParams] =
     useState<BookSearchParams>(defaultValues);
 
   const dateClassName =
     "mr-2 h-12 rounded-md border border-[#464B58] !bg-[#2A303C] pl-4 outline-none";
+
+  const enabled = false;
+  const { refetch, isInitialLoading, isRefetching } =
+    api.books.exportAsCsv.useQuery(
+      { id: selected ?? [] },
+      { enabled: enabled, cacheTime: 0, retry: 0 }
+    );
+  const exportLoading = isInitialLoading || isRefetching;
+
+  const exportCsv = async () => {
+    try {
+      const { data } = await refetch();
+      if (data) {
+        const blob = new Blob([data], { type: "text/csv;charset=utf-8;" });
+
+        const url = URL.createObjectURL(blob);
+
+        const link = document.createElement("a");
+        link.href = url;
+        link.setAttribute("download", "export.csv");
+
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        URL.revokeObjectURL(url);
+      } else {
+        toast.error("An error occurred.");
+      }
+    } catch (error) {
+      toast.error("An error occurred.");
+    }
+  };
 
   return (
     <form
@@ -55,7 +94,14 @@ export default function BooksSearch({
           setSearchParams((prev) => ({ ...prev, dateTo: date }))
         }
       />
-
+      <button
+        type="submit"
+        className="btn-primary btn mr-2"
+        onClick={exportCsv}
+        disabled={!selected.length || exportLoading}
+      >
+        Export
+      </button>
       <button type="submit" className="btn-primary btn mr-2">
         Filter
       </button>

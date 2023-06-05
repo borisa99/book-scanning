@@ -1,7 +1,7 @@
+import useBooks from "@/hooks/useBooks";
 import type { Book } from "@prisma/client";
 import dayjs from "dayjs";
 import Image from "next/image";
-import { useEffect, useState } from "react";
 
 const tableKeys = [
   { value: "image", title: "" },
@@ -25,29 +25,48 @@ const tableKeys = [
 ];
 
 interface BooksTableProps {
+  isLoading: boolean;
   rows: Book[];
-  handleSelectedChange: (value: string[]) => void;
 }
-export default function BooksTable({
-  rows,
-  handleSelectedChange,
-}: BooksTableProps) {
-  const [selected, setSelected] = useState<string[]>([]);
+export default function BooksTable({ isLoading, rows }: BooksTableProps) {
+  const { selected, setSelected } = useBooks();
 
   const formatLongString = (value?: string | null) => {
     return value && value.length > 40 ? value.substring(0, 40) + "..." : value;
   };
 
-  useEffect(() => {
-    handleSelectedChange(selected);
-  }, [selected, handleSelectedChange]);
+  const isSelectedAll =
+    !isLoading &&
+    selected.sort().join(",") ===
+      rows
+        .map((row) => row.id)
+        .sort()
+        .join(",");
+
+  const handleCheckAll = () => {
+    if (isSelectedAll) {
+      setSelected([]);
+    } else {
+      setSelected(rows.map((row) => row.id));
+    }
+  };
 
   return (
     <div className="h-[calc(100vh-12.5rem)] overflow-x-auto">
       <table className="table-compact table w-full">
         <thead className="sticky">
           <tr>
-            <th></th>
+            <th>
+              <div className="flex items-center justify-center">
+                <input
+                  type="checkbox"
+                  checked={isSelectedAll}
+                  onChange={handleCheckAll}
+                  className="checkbox-primary checkbox ml-5"
+                  disabled={isLoading}
+                />
+              </div>
+            </th>
             {tableKeys.map((tKey) => (
               <th key={tKey.value}>{tKey.title}</th>
             ))}
@@ -73,6 +92,7 @@ export default function BooksTable({
                           setSelected((prev) => [...prev, row.id]);
                         }
                       }}
+                      disabled={isLoading}
                       className="checkbox-primary checkbox"
                     />
                   </div>

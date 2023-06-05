@@ -9,6 +9,7 @@ import Pagination from "@/components/Pagination";
 import BooksSearch from "@/components/BooksSearch";
 import LoadingOverlay from "@/components/LoadingOverlay";
 import BookForm from "@/components/BookForm";
+import BooksProvider from "@/context/BooksContext";
 
 export interface BookSearchParams {
   query: string;
@@ -41,31 +42,30 @@ const Home: NextPage = () => {
       </Head>
       <Navbar />
       <main className="px-5">
-        <div className="flex flex-col gap-y-2">
-          <div className="flex justify-between">
-            <BooksSearch
-              defaultValues={defaultSearchParams}
-              handleSubmit={(searchParams) => {
-                setSearchParams(searchParams);
-              }}
-            />
-            <BookForm disabled={isLoading} />
+        <BooksProvider>
+          <div className="flex flex-col gap-y-2">
+            <div className="flex justify-between">
+              <BooksSearch
+                defaultValues={defaultSearchParams}
+                handleSubmit={(searchParams) => {
+                  setSearchParams(searchParams);
+                }}
+              />
+              <BookForm disabled={isLoading} />
+            </div>
+            <div className="relative">
+              {isLoading && <LoadingOverlay />}
+              <BooksTable rows={data?.books ?? []} isLoading={isLoading} />
+              <Pagination
+                currentPage={page}
+                pageSize={pageSize}
+                totalCount={data?.count}
+                handlePageChange={(value) => setPage(value)}
+                handlePageSizeChange={(value) => setPageSize(value)}
+              />
+            </div>
           </div>
-          <div className="relative">
-            {isLoading && <LoadingOverlay />}
-            <BooksTable
-              rows={data?.books ?? []}
-              handleSelectedChange={(value) => console.log(value)}
-            />
-            <Pagination
-              currentPage={page}
-              pageSize={pageSize}
-              totalCount={data?.count}
-              handlePageChange={(value) => setPage(value)}
-              handlePageSizeChange={(value) => setPageSize(value)}
-            />
-          </div>
-        </div>
+        </BooksProvider>
       </main>
     </>
   );
