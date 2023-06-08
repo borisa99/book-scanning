@@ -46,12 +46,7 @@ export const convertToCsvString = (books: (Book | null)[]) => {
       "*Format",
       "*Duration",
       "*StartPrice",
-      "BuyItNowPrice",
       "*Quantity",
-      "PayPalAccepted",
-      "PayPalEmailAddress",
-      "ImmediatePayRequired",
-      "PaymentInstructions",
       "*Location",
       "ShippingType",
       "ShippingService-1:Option",
@@ -61,14 +56,37 @@ export const convertToCsvString = (books: (Book | null)[]) => {
       "ReturnsWithinOption",
       "RefundOption",
       "ShippingCostPaidByOption",
+      "Product:ISBN",
     ],
   ];
 
   books.forEach((item) => {
-    if (item && item.dimensions) {
-      const regex =
-        /Height: ([\d.]+) Inches, Length: ([\d.]+) Inches(?:, Weight: ([\d.]+) Pounds)?, Width: ([\d.]+) Inches/;
-      const matches = item.dimensions.match(regex);
+    if (item) {
+      const dimensions: {
+        height: null | number;
+        length: null | number;
+        weight: null | number;
+        width: null | number;
+      } = {
+        height: null,
+        length: null,
+        weight: null,
+        width: null,
+      };
+
+      if (item.dimensions) {
+        const regex =
+          /Height: ([\d.]+) Inches, Length: ([\d.]+) Inches(?:, Weight: ([\d.]+) Pounds)?, Width: ([\d.]+) Inches/;
+
+        const matches = item.dimensions.match(regex);
+
+        if (matches && matches.length >= 5) {
+          dimensions.height = matches[1] ? parseFloat(matches[1]) : null;
+          dimensions.length = matches[2] ? parseFloat(matches[2]) : null;
+          dimensions.width = matches[4] ? parseFloat(matches[4]) : null;
+          dimensions.weight = matches[3] ? parseFloat(matches[3]) : null;
+        }
+      }
 
       csvString.push([
         "Add",
@@ -79,7 +97,7 @@ export const convertToCsvString = (books: (Book | null)[]) => {
             ? item.title_long.replace(/"/g, '""')
             : "Unknown"
         }"`,
-        "1000",
+        "3000",
         `"${
           item.authors !== null
             ? item.authors
@@ -88,7 +106,9 @@ export const convertToCsvString = (books: (Book | null)[]) => {
                 .replace(/\[/g, "")
             : "Unknown"
         }"`,
-        item.title ?? "Unknown",
+        item.title !== null
+          ? item.title.replace(/"/g, '""').replace(/,/g, '""')
+          : "Unknown",
         item.language ?? "Unknown",
         "Unknown",
         "No",
@@ -100,7 +120,9 @@ export const convertToCsvString = (books: (Book | null)[]) => {
                 .replace(/\[/g, "")
             : "Unknown"
         }"`,
-        item.publisher ?? "Unknown",
+        item.publisher !== null
+          ? item.publisher.replace(/"/g, '""').replace(/,/g, '""')
+          : "Unknown",
         item.language ?? "Unknown",
         item.date_published ?? "Unknown",
         "Unknown",
@@ -122,47 +144,35 @@ export const convertToCsvString = (books: (Book | null)[]) => {
         "No",
         "No",
         `${
-          matches && matches[1] !== undefined
-            ? `${parseFloat(matches[1])} Inches`
-            : "Unknown"
+          dimensions.height != null ? `${dimensions.height} Inches` : "Unknown"
         }`,
         `${
-          matches && matches[2] !== undefined
-            ? `${parseFloat(matches[2])} Inches`
-            : "Unknown"
+          dimensions.length != null ? `${dimensions.length} Inches` : "Unknown"
         }`,
         `${
-          matches && matches[3] !== undefined
-            ? `${parseFloat(matches[3])} Pounds`
-            : "Unknown"
+          dimensions.weight != null ? `${dimensions.weight} Pounds` : "Unknown"
         }`,
         `${
-          matches && matches[4] !== undefined
-            ? `${parseFloat(matches[4])} Inches`
-            : "Unknown"
+          dimensions.width != null ? `${dimensions.width} Inches` : "Unknown"
         }`,
         `${item.pages ?? 0}`,
         "1",
         item.image ?? "Unknown",
         `"${"<font rwr='1' style='font-family: Arial' size='4'><title>Free eBay listing template designed by dewiso.com</title> ..."}"`,
-        "Auction",
-        "10",
-        "5.0",
-        "10",
+        "FixedPrice",
+        "GTC",
+        JSON.stringify(item.msrp),
         "1",
-        "1",
-        "paypal.adress@gmail.com",
-        "0",
-        "Thanks for your purchase.",
-        "98122",
+        "TN6 1HR",
         "Flat",
         "UPSGround",
+        "1",
         "4.5",
-        "5",
         "ReturnsAccepted",
         "Days_30",
         "MoneyBackOrExchange",
         "Seller",
+        item.isbn13 ?? "Unknown",
       ]);
     }
   });
