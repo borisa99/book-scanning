@@ -19,7 +19,7 @@ model Book {
     dimensions     String?
     edition        String?
     image          String?
-    isbn           String   @unique
+    isbn           String
     isbn10         String
     isbn13         String
     language       String?
