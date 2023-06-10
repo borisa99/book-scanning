@@ -24,6 +24,7 @@ const bookSchema = z.object({
   binding: z.string().optional().nullable(),
   subjects: z.string().optional(),
   synopsis: z.string().optional().nullable(),
+  shelf: z.string().optional().nullable(),
 });
 
 export const booksRouter = createTRPCRouter({
