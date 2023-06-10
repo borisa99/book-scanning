@@ -57,6 +57,8 @@ export default function AddBookModal({ handleClose, book }: AddBookModalProps) {
           pages,
           synopsis,
           binding,
+          shelf: "232",
+          sku: "232",
         },
       });
       await utils.books.search.invalidate();

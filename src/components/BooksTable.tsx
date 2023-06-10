@@ -22,6 +22,8 @@ const tableKeys = [
   { value: "synopsis", title: "Synopsis" },
   { value: "date_published", title: "Date Published" },
   { value: "createdAt", title: "Created At" },
+  { value: "shelf", title: "Shelf" },
+  { value: "sku", title: "SKU" },
 ];
 
 interface BooksTableProps {
@@ -128,6 +130,8 @@ export default function BooksTable({ isLoading, rows }: BooksTableProps) {
                 <td>{formatLongString(row.synopsis)}</td>
                 <td>{row.date_published}</td>
                 <td>{dayjs(row.createdAt).format("DD/MM/YYYY")}</td>
+                <td>{row.shelf}</td>
+                <td>{row.sku}</td>
               </tr>
             );
           })}
