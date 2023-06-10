@@ -6,6 +6,11 @@ import type { Book } from "@prisma/client";
 import { api } from "@/utils/api";
 
 import BookModalItem from "./BookModalItem";
+import { useRef, useState } from "react";
+import Barcode from "react-barcode";
+import { generateSKU } from "@/utils/helpers";
+import { useRouter } from "next/router";
+import ReactToPrint from "react-to-print";
 
 interface AddBookModalProps {
   handleClose: () => void;
@@ -13,6 +18,11 @@ interface AddBookModalProps {
 }
 
 export default function AddBookModal({ handleClose, book }: AddBookModalProps) {
+  const [shelfNumber, setShelfNumber] = useState<string>("");
+  const barcodeRef = useRef<HTMLDivElement | null>(null);
+
+  const router = useRouter();
+
   const utils = api.useContext();
   const {
     dimensions,
@@ -37,6 +47,15 @@ export default function AddBookModal({ handleClose, book }: AddBookModalProps) {
   const { mutateAsync } = api.books.create.useMutation();
 
   const handleSave = async () => {
+    if (!shelfNumber.length) {
+      return toast.error("You need to input the shelf field.");
+    }
+    const generatedSku = generateSKU(
+      title ?? "NT",
+      isbn13,
+      !shelfNumber.length ? "NN" : shelfNumber
+    );
+
     try {
       await mutateAsync({
         book: {
@@ -57,12 +76,14 @@ export default function AddBookModal({ handleClose, book }: AddBookModalProps) {
           pages,
           synopsis,
           binding,
-          shelf: "232",
-          sku: "232",
+          shelf: shelfNumber,
+          sku: generatedSku,
         },
       });
       await utils.books.search.invalidate();
       handleClose();
+
+      await router.push(`/barcode/${generatedSku}`);
     } catch (error: unknown) {
       if (error instanceof Error) {
         toast.error(error.message);
@@ -111,6 +132,28 @@ export default function AddBookModal({ handleClose, book }: AddBookModalProps) {
               <BookModalItem title="Binding" value={binding} />
             </div>
             <BookModalItem title="Subjects" value={JSON.stringify(subjects)} />
+            <BookModalItem title="SKU" value={"TEST"} />
+            <div className="mt-3">
+              <span className="mr-3 rounded-md bg-primary-focus p-1 text-white">
+                Shelf:
+              </span>
+              <input
+                type="text"
+                placeholder="Enter shelf"
+                className="input-bordered input w-full max-w-xs"
+                value={shelfNumber}
+                onChange={(e) => setShelfNumber(e.target.value)}
+              />
+            </div>
+            <div style={{ display: "none" }}>
+              <ReactToPrint
+                trigger={() => <button id="print-button">Print</button>}
+                content={() => barcodeRef.current}
+              />
+              <div ref={barcodeRef}>
+                <Barcode value={"eldar"} />
+              </div>
+            </div>
           </div>
           <div className="modal-action">
             <label

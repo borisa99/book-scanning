@@ -181,3 +181,9 @@ export const convertToCsvString = (books: (Book | null)[]) => {
 
   return final;
 };
+
+export const generateSKU = (title: string, isbn: string, shelf: string) => {
+  return `${
+    title.substring(0, 2) + isbn.substring(0, 3) + shelf.substring(0, 3)
+  }`;
+};
