@@ -114,7 +114,7 @@ export default function BooksTable({ isLoading, rows }: BooksTableProps) {
                         className="checkbox-primary checkbox mr-4"
                       />
                       <span
-                        className="h-4 w-4 cursor-pointer text-blue-500"
+                        className="h-4 w-4 cursor-pointer fill-primary"
                         onClick={() => handleBarcodeClick(row)}
                       >
                         <IconBarcode />
