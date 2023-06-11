@@ -1,8 +1,12 @@
-import useBooks from "@/hooks/useBooks";
-import { formatLongString } from "@/utils/helpers";
-import type { Book } from "@prisma/client";
+import { useState } from "react";
 import dayjs from "dayjs";
 import Image from "next/image";
+
+import type { Book } from "@prisma/client";
+import { formatLongString } from "@/utils/helpers";
+import useBooks from "@/hooks/useBooks";
+import IconBarcode from "./Icons/IconBarcode";
+import PrintBarCodeModal from "./PrintBarCodeModal";
 
 const tableKeys = [
   { value: "image", title: "" },
@@ -32,6 +36,9 @@ interface BooksTableProps {
   rows: Book[];
 }
 export default function BooksTable({ isLoading, rows }: BooksTableProps) {
+  const [showBarcodeModal, setShowBarcodeModal] = useState(false);
+  const [currentBook, setCurrentBook] = useState<Book | null>(null);
+
   const { selected, setSelected } = useBooks();
 
   const isSelectedAll =
@@ -48,6 +55,16 @@ export default function BooksTable({ isLoading, rows }: BooksTableProps) {
     } else {
       setSelected(rows.map((row) => row.id));
     }
+  };
+
+  const handleClose = () => {
+    setShowBarcodeModal(false);
+    setCurrentBook(null);
+  };
+
+  const handleBarcodeClick = (book: Book) => {
+    setCurrentBook(book);
+    setShowBarcodeModal(true);
   };
 
   return (
@@ -94,8 +111,14 @@ export default function BooksTable({ isLoading, rows }: BooksTableProps) {
                           }
                         }}
                         disabled={isLoading}
-                        className="checkbox-primary checkbox"
+                        className="checkbox-primary checkbox mr-4"
                       />
+                      <span
+                        className="h-4 w-4 cursor-pointer text-blue-500"
+                        onClick={() => handleBarcodeClick(row)}
+                      >
+                        <IconBarcode />
+                      </span>
                     </div>
                   </th>
 
@@ -138,6 +161,9 @@ export default function BooksTable({ isLoading, rows }: BooksTableProps) {
           </tbody>
         </table>
       </div>
+      {showBarcodeModal && currentBook && (
+        <PrintBarCodeModal handleClose={handleClose} book={currentBook} />
+      )}
     </>
   );
 }

@@ -1,23 +1,20 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
-
-import type { Book } from "@prisma/client";
-
-import BookModalItem from "./BookModalItem";
 import { useRef, useState } from "react";
 import Barcode from "react-barcode";
-import { generateSKU } from "@/utils/helpers";
-
-import { useReactToPrint } from "react-to-print";
 import classNames from "classnames";
+import { useReactToPrint } from "react-to-print";
+
+import type { Book } from "@prisma/client";
+import { generateSKU } from "@/utils/helpers";
 
 interface AddBookModalProps {
   handleClose: () => void;
-  books: Book[];
+  book: Book;
 }
 
 export default function PrintBarCodeModal({
   handleClose,
-  books,
+  book,
 }: AddBookModalProps) {
   const [printing, setPrinting] = useState(false);
   const barcodeRef = useRef<HTMLDivElement | null>(null);
@@ -52,52 +49,23 @@ export default function PrintBarCodeModal({
       />
       <div className="modal">
         <div className="modal-box max-w-3xl">
-          <h3 className="mb-5 text-lg font-bold">Print book barcode</h3>
           <div className="flex flex-col gap-y-3">
-            {books.map((el) => {
-              return (
-                <>
-                  <BookModalItem title="Title" value={el.title} />
-
-                  {el.shelf && el.shelf.length ? (
-                    <BookModalItem
-                      title="SKU"
-                      value={
-                        el.sku ??
-                        generateSKU(
-                          el.title !== null ? el.title : "Unknown",
-                          el.isbn13,
-                          el.isbn10,
-                          el.authors !== null
-                            ? JSON.stringify(el.authors)
-                            : "Unknown",
-                          el.shelf
-                        )
-                      }
-                    />
-                  ) : null}
-
-                  {el.shelf && el.shelf.length ? (
-                    <div className="mt-5 flex justify-center">
-                      <Barcode
-                        value={
-                          el.sku ??
-                          generateSKU(
-                            el.title !== null ? el.title : "Unknown",
-                            el.isbn13,
-                            el.isbn10,
-                            el.authors !== null
-                              ? JSON.stringify(el.authors)
-                              : "Unknown",
-                            el.shelf
-                          )
-                        }
-                      />
-                    </div>
-                  ) : null}
-                </>
-              );
-            })}
+            <div className="mt-5 flex justify-center">
+              <Barcode
+                value={
+                  book.sku ??
+                  generateSKU(
+                    book.title !== null ? book.title : "Unknown",
+                    book.isbn13,
+                    book.isbn10,
+                    book.authors !== null
+                      ? JSON.stringify(book.authors)
+                      : "Unknown",
+                    book.shelf ?? ""
+                  )
+                }
+              />
+            </div>
           </div>
           {!printing && (
             <div className="modal-action">

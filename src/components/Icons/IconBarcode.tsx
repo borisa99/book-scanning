@@ -1,9 +1,6 @@
 const IconBarcode = () => {
   return (
-    <svg
-      style={{ width: "inherit", height: "inherit", fill: "inherit" }}
-      viewBox="0 0 60 60"
-    >
+    <svg viewBox="0 0 60 60" className="h-4 w-4" color="inherit" fill="inherit">
       <path
         d="M59.206,0.293c-0.391-0.391-1.023-0.391-1.414,0L54.085,4H30.802L1.533,33.511c-1.376,1.376-1.376,3.614,0,4.99
 	l20.466,20.466C22.664,59.633,23.551,60,24.494,60s1.829-0.367,2.505-1.043l28.501-29.271V5.414l3.707-3.707
