@@ -8,6 +8,7 @@ import DatePicker from "react-datepicker";
 import useBooks from "@/hooks/useBooks";
 import { api } from "@/utils/api";
 import type { BookSearchParams } from "@/pages/index";
+import PrintBarCodeModal from "./PrintBarCodeModal";
 
 interface BooksSearchProps {
   defaultValues: BookSearchParams;
@@ -20,11 +21,22 @@ export default function BooksSearch({
 }: BooksSearchProps) {
   const { selected } = useBooks();
 
+  const [showBarcodeModal, setShowBarcodeModal] = useState(false);
+
   const [searchParams, setSearchParams] =
     useState<BookSearchParams>(defaultValues);
 
   const dateClassName =
     "mr-2 h-12 rounded-md border border-[#464B58] !bg-[#2A303C] pl-4 outline-none";
+
+  const enabled = false;
+  const { data, refetch, isInitialLoading, isRefetching } =
+    api.books.getByIds.useQuery(
+      { ids: selected },
+      { enabled: enabled, retry: 0 }
+    );
+
+  const barcodeLoading = isInitialLoading || isRefetching;
 
   const { mutate, isLoading: exportLoading } =
     api.books.exportAsCsv.useMutation({
@@ -48,62 +60,90 @@ export default function BooksSearch({
       },
     });
 
+  const handleBarcode = () => {
+    void refetch().then(({ data }) => {
+      if (data) {
+        setShowBarcodeModal(true);
+      } else {
+        console.log(data);
+        toast.error("Not Found");
+      }
+    });
+  };
+
+  const handleClose = () => {
+    setShowBarcodeModal(false);
+  };
+
   return (
-    <form
-      onSubmit={(e) => {
-        e.preventDefault();
-        handleSubmit(searchParams);
-      }}
-      className="flex"
-    >
-      <input
-        type="text"
-        placeholder="Search"
-        className="input-bordered input mr-2 w-full max-w-xs"
-        value={searchParams.query}
-        onChange={(e) =>
-          setSearchParams((prev) => ({ ...prev, query: e.target.value }))
-        }
-      />
-      <DatePicker
-        selected={searchParams.dateFrom}
-        dateFormat="yyyy/MM/dd"
-        placeholderText="Date From"
-        className={dateClassName}
-        onChange={(date) =>
-          setSearchParams((prev) => ({ ...prev, dateFrom: date }))
-        }
-      />
-      <DatePicker
-        selected={searchParams.dateTo}
-        dateFormat="yyyy/MM/dd"
-        placeholderText="Date To"
-        className={dateClassName}
-        onChange={(date) =>
-          setSearchParams((prev) => ({ ...prev, dateTo: date }))
-        }
-      />
-      <button
-        type="submit"
-        className="btn-primary btn mr-2"
-        onClick={() => mutate({ ids: selected })}
-        disabled={!selected.length || exportLoading}
-      >
-        Export
-      </button>
-      <button type="submit" className="btn-primary btn mr-2">
-        Filter
-      </button>
-      <button
-        type="button"
-        className="btn"
-        onClick={() => {
-          setSearchParams(defaultValues);
-          handleSubmit(defaultValues);
+    <>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          handleSubmit(searchParams);
         }}
+        className="flex"
       >
-        Clear
-      </button>
-    </form>
+        <input
+          type="text"
+          placeholder="Search"
+          className="input-bordered input mr-2 w-full max-w-xs"
+          value={searchParams.query}
+          onChange={(e) =>
+            setSearchParams((prev) => ({ ...prev, query: e.target.value }))
+          }
+        />
+        <DatePicker
+          selected={searchParams.dateFrom}
+          dateFormat="yyyy/MM/dd"
+          placeholderText="Date From"
+          className={dateClassName}
+          onChange={(date) =>
+            setSearchParams((prev) => ({ ...prev, dateFrom: date }))
+          }
+        />
+        <DatePicker
+          selected={searchParams.dateTo}
+          dateFormat="yyyy/MM/dd"
+          placeholderText="Date To"
+          className={dateClassName}
+          onChange={(date) =>
+            setSearchParams((prev) => ({ ...prev, dateTo: date }))
+          }
+        />
+        <button
+          type="submit"
+          className="btn-primary btn mr-2"
+          onClick={() => mutate({ ids: selected })}
+          disabled={!selected.length || exportLoading}
+        >
+          Export
+        </button>
+        <button
+          type="submit"
+          className="btn-primary btn mr-2"
+          onClick={() => handleBarcode()}
+          disabled={!selected.length || barcodeLoading}
+        >
+          Barcode
+        </button>
+        <button type="submit" className="btn-primary btn mr-2">
+          Filter
+        </button>
+        <button
+          type="button"
+          className="btn"
+          onClick={() => {
+            setSearchParams(defaultValues);
+            handleSubmit(defaultValues);
+          }}
+        >
+          Clear
+        </button>
+      </form>
+      {showBarcodeModal && data && (
+        <PrintBarCodeModal handleClose={handleClose} books={data} />
+      )}
+    </>
   );
 }

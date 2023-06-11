@@ -139,4 +139,25 @@ export const booksRouter = createTRPCRouter({
         throw new TRPCError({ code: "NOT_FOUND" });
       }
     }),
+  getByIds: privateProcedure
+    .input(
+      z.object({
+        ids: z.string().array(),
+      })
+    )
+    .query(async ({ input, ctx }) => {
+      try {
+        const { ids } = input;
+
+        const books = await ctx.prisma.book.findMany({
+          where: {
+            id: { in: ids },
+          },
+        });
+
+        return books;
+      } catch (error) {
+        throw new TRPCError({ code: "NOT_FOUND" });
+      }
+    }),
 });

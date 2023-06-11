@@ -40,7 +40,6 @@ export default function AddBookModal({ handleClose, book }: AddBookModalProps) {
   decodeURI;
   const utils = api.useContext();
   const {
-    id,
     dimensions,
     title,
     title_long,
