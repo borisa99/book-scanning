@@ -197,8 +197,6 @@ export const generateSKU = (
     .join("")
     .substring(0, 10);
 
-  console.log(authors);
-
   const authorInitials = authors
     .split(", ")
     .map((author) =>
