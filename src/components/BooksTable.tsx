@@ -1,4 +1,5 @@
 import useBooks from "@/hooks/useBooks";
+import { formatLongString } from "@/utils/helpers";
 import type { Book } from "@prisma/client";
 import dayjs from "dayjs";
 import Image from "next/image";
@@ -32,10 +33,6 @@ interface BooksTableProps {
 }
 export default function BooksTable({ isLoading, rows }: BooksTableProps) {
   const { selected, setSelected } = useBooks();
-
-  const formatLongString = (value?: string | null) => {
-    return value && value.length > 40 ? value.substring(0, 40) + "..." : value;
-  };
 
   const isSelectedAll =
     !isLoading &&

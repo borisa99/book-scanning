@@ -8,9 +8,9 @@ import { api } from "@/utils/api";
 import BookModalItem from "./BookModalItem";
 import { useRef, useState } from "react";
 import Barcode from "react-barcode";
-import { generateSKU } from "@/utils/helpers";
-import { useRouter } from "next/router";
-import ReactToPrint from "react-to-print";
+import { formatLongString, generateSKU } from "@/utils/helpers";
+
+import { useReactToPrint } from "react-to-print";
 
 interface AddBookModalProps {
   handleClose: () => void;
@@ -19,12 +19,28 @@ interface AddBookModalProps {
 
 export default function AddBookModal({ handleClose, book }: AddBookModalProps) {
   const [shelfNumber, setShelfNumber] = useState<string>("");
+  const [printing, setPrinting] = useState<boolean>(false);
   const barcodeRef = useRef<HTMLDivElement | null>(null);
 
-  const router = useRouter();
-
+  const handlePrint = useReactToPrint({
+    content: () => barcodeRef.current,
+    onAfterPrint: () => {
+      handleClose();
+      setPrinting(false);
+    },
+    onBeforeGetContent: () => {
+      return new Promise((resolve) => {
+        setPrinting(true);
+        setTimeout(() => {
+          resolve(true);
+        }, 1000);
+      });
+    },
+  });
+  decodeURI;
   const utils = api.useContext();
   const {
+    id,
     dimensions,
     title,
     title_long,
@@ -51,9 +67,11 @@ export default function AddBookModal({ handleClose, book }: AddBookModalProps) {
       return toast.error("You need to input the shelf field.");
     }
     const generatedSku = generateSKU(
-      title ?? "NT",
+      title !== null ? title : "Unknown",
       isbn13,
-      !shelfNumber.length ? "NN" : shelfNumber
+      isbn10,
+      authors !== null ? JSON.stringify(authors) : "Unknown",
+      shelfNumber
     );
 
     try {
@@ -81,9 +99,7 @@ export default function AddBookModal({ handleClose, book }: AddBookModalProps) {
         },
       });
       await utils.books.search.invalidate();
-      handleClose();
-
-      await router.push(`/barcode/${generatedSku}`);
+      handlePrint();
     } catch (error: unknown) {
       if (error instanceof Error) {
         toast.error(error.message);
@@ -94,7 +110,7 @@ export default function AddBookModal({ handleClose, book }: AddBookModalProps) {
   };
 
   return (
-    <>
+    <div ref={barcodeRef}>
       <input
         type="checkbox"
         className="modal-toggle"
@@ -131,48 +147,72 @@ export default function AddBookModal({ handleClose, book }: AddBookModalProps) {
               <BookModalItem title="Publisher" value={publisher} />
               <BookModalItem title="Binding" value={binding} />
             </div>
-            <BookModalItem title="Subjects" value={JSON.stringify(subjects)} />
-            <BookModalItem title="SKU" value={"TEST"} />
+            <BookModalItem
+              title="Subjects"
+              value={
+                printing
+                  ? formatLongString(JSON.stringify(subjects))
+                  : JSON.stringify(subjects)
+              }
+            />
+            {shelfNumber.length ? (
+              <BookModalItem
+                title="SKU"
+                value={generateSKU(
+                  title !== null ? title : "Unknown",
+                  isbn13,
+                  isbn10,
+                  authors !== null ? authors.toString() : "Unknown",
+                  shelfNumber
+                )}
+              />
+            ) : null}
             <div className="mt-3">
               <span className="mr-3 rounded-md bg-primary-focus p-1 text-white">
-                Shelf:
+                Shelf number:
               </span>
               <input
                 type="text"
-                placeholder="Enter shelf"
+                placeholder="Enter shelf number"
                 className="input-bordered input w-full max-w-xs"
                 value={shelfNumber}
                 onChange={(e) => setShelfNumber(e.target.value)}
               />
             </div>
-            <div style={{ display: "none" }}>
-              <ReactToPrint
-                trigger={() => <button id="print-button">Print</button>}
-                content={() => barcodeRef.current}
-              />
-              <div ref={barcodeRef}>
-                <Barcode value={"eldar"} />
+            {shelfNumber.length ? (
+              <div className="mt-5 flex justify-center">
+                <Barcode
+                  value={generateSKU(
+                    title !== null ? title : "Unknown",
+                    isbn13,
+                    isbn10,
+                    authors !== null ? JSON.stringify(authors) : "Unknown",
+                    shelfNumber
+                  )}
+                />
               </div>
+            ) : null}
+          </div>
+          {!printing && (
+            <div className="modal-action">
+              <label
+                htmlFor="my-modal"
+                className="btn-sm btn"
+                onClick={handleClose}
+              >
+                Cancel
+              </label>
+              <label
+                htmlFor="my-modal"
+                className="btn-sm btn"
+                onClick={handleSave}
+              >
+                Save
+              </label>
             </div>
-          </div>
-          <div className="modal-action">
-            <label
-              htmlFor="my-modal"
-              className="btn-sm btn"
-              onClick={handleClose}
-            >
-              Cancel
-            </label>
-            <label
-              htmlFor="my-modal"
-              className="btn-sm btn"
-              onClick={handleSave}
-            >
-              Save
-            </label>
-          </div>
+          )}
         </div>
       </div>
-    </>
+    </div>
   );
 }

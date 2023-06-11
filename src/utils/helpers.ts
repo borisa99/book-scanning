@@ -182,8 +182,42 @@ export const convertToCsvString = (books: (Book | null)[]) => {
   return final;
 };
 
-export const generateSKU = (title: string, isbn: string, shelf: string) => {
-  return `${
-    title.substring(0, 2) + isbn.substring(0, 3) + shelf.substring(0, 3)
-  }`;
+export const generateSKU = (
+  title: string,
+  isbn13: string,
+  isbn10: string,
+  authors: string,
+  shelfNumber: string
+) => {
+  const cleanISBN = isbn13.replace(/-/g, "").replace(/\D/g, "");
+  const cleanISBN10 = isbn10.replace(/-/g, "").replace(/\D/g, "");
+  const combinedISBNs = (cleanISBN + cleanISBN10)
+    .split("")
+    .sort(() => 0.5 - Math.random())
+    .join("")
+    .substring(0, 10);
+
+  console.log(authors);
+
+  const authorInitials = authors
+    .split(", ")
+    .map((author) =>
+      author
+        .replace(/[^A-Za-z]/g, "")
+        .substring(0, 2)
+        .toUpperCase()
+    )
+    .join("");
+
+  const titleLetters = title
+    .replace(/[^A-Za-z]/g, "")
+    .substring(0, 3)
+    .toUpperCase();
+
+  const SKU = `S${shelfNumber}-${titleLetters}-${combinedISBNs}-${authorInitials}`;
+  return SKU;
+};
+
+export const formatLongString = (value?: string | null) => {
+  return value && value.length > 40 ? value.substring(0, 40) + "..." : value;
 };
