@@ -31,7 +31,7 @@ export default function Pagination({
 
   return (
     <div className="mt-2 flex justify-end">
-      <div className="dropdown dropdown-top">
+      <div className="dropdown-top dropdown">
         <label tabIndex={0} className="btn mr-2">
           per page {pageSize}
         </label>
@@ -42,8 +42,6 @@ export default function Pagination({
           {pageSizeOptions.map((option) => (
             <li
               onClick={() => {
-                console.log("CLICK");
-
                 handlePageSizeChange(option);
               }}
               className="w-full cursor-pointer py-2 hover:opacity-30"
