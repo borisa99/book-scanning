@@ -49,63 +49,61 @@ export default function BooksSearch({
     });
 
   return (
-    <>
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          handleSubmit(searchParams);
-        }}
-        className="flex"
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        handleSubmit(searchParams);
+      }}
+      className="flex"
+    >
+      <input
+        type="text"
+        placeholder="Search"
+        className="input-bordered input mr-2 w-full max-w-xs"
+        value={searchParams.query}
+        onChange={(e) =>
+          setSearchParams((prev) => ({ ...prev, query: e.target.value }))
+        }
+      />
+      <DatePicker
+        selected={searchParams.dateFrom}
+        dateFormat="yyyy/MM/dd"
+        placeholderText="Date From"
+        className={dateClassName}
+        onChange={(date) =>
+          setSearchParams((prev) => ({ ...prev, dateFrom: date }))
+        }
+      />
+      <DatePicker
+        selected={searchParams.dateTo}
+        dateFormat="yyyy/MM/dd"
+        placeholderText="Date To"
+        className={dateClassName}
+        onChange={(date) =>
+          setSearchParams((prev) => ({ ...prev, dateTo: date }))
+        }
+      />
+      <button
+        type="submit"
+        className="btn-primary btn mr-2"
+        onClick={() => mutate({ ids: selected })}
+        disabled={!selected.length || exportLoading}
       >
-        <input
-          type="text"
-          placeholder="Search"
-          className="input-bordered input mr-2 w-full max-w-xs"
-          value={searchParams.query}
-          onChange={(e) =>
-            setSearchParams((prev) => ({ ...prev, query: e.target.value }))
-          }
-        />
-        <DatePicker
-          selected={searchParams.dateFrom}
-          dateFormat="yyyy/MM/dd"
-          placeholderText="Date From"
-          className={dateClassName}
-          onChange={(date) =>
-            setSearchParams((prev) => ({ ...prev, dateFrom: date }))
-          }
-        />
-        <DatePicker
-          selected={searchParams.dateTo}
-          dateFormat="yyyy/MM/dd"
-          placeholderText="Date To"
-          className={dateClassName}
-          onChange={(date) =>
-            setSearchParams((prev) => ({ ...prev, dateTo: date }))
-          }
-        />
-        <button
-          type="submit"
-          className="btn-primary btn mr-2"
-          onClick={() => mutate({ ids: selected })}
-          disabled={!selected.length || exportLoading}
-        >
-          Export
-        </button>
-        <button type="submit" className="btn-primary btn mr-2">
-          Filter
-        </button>
-        <button
-          type="button"
-          className="btn"
-          onClick={() => {
-            setSearchParams(defaultValues);
-            handleSubmit(defaultValues);
-          }}
-        >
-          Clear
-        </button>
-      </form>
-    </>
+        Export
+      </button>
+      <button type="submit" className="btn-primary btn mr-2">
+        Filter
+      </button>
+      <button
+        type="button"
+        className="btn"
+        onClick={() => {
+          setSearchParams(defaultValues);
+          handleSubmit(defaultValues);
+        }}
+      >
+        Clear
+      </button>
+    </form>
   );
 }
