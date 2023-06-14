@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-misused-promises */
-import { useState } from "react";
+import { useRef, useState, useLayoutEffect } from "react";
 import toast from "react-hot-toast";
 
 import AddBookModal from "./AddBookModal";
@@ -11,6 +10,8 @@ interface BookFormProps {
 }
 
 export default function BookForm({ disabled }: BookFormProps) {
+  const inputRef = useRef<HTMLInputElement>(null);
+
   const [isbn, setIsbn] = useState("");
   const [showModal, setShowModal] = useState(false);
 
@@ -39,16 +40,24 @@ export default function BookForm({ disabled }: BookFormProps) {
     setIsbn("");
   };
 
+  useLayoutEffect(() => {
+    setTimeout(() => {
+      inputRef.current?.focus();
+    }, 1000);
+  }, []);
+
   return (
     <>
       <form className="flex gap-x-2" onSubmit={handleSubmit}>
         <input
+          ref={inputRef}
           type="text"
           placeholder="Enter ISBN"
           className="input-bordered input w-full max-w-xs"
           value={isbn}
           onChange={(e) => setIsbn(e.target.value)}
           disabled={disabled}
+          autoFocus={true}
         />
         <button
           className={`btn-primary btn ${isLoading ? "loading" : ""}`}

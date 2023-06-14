@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
-import { useRef, useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import Image from "next/image";
 import toast from "react-hot-toast";
 
@@ -15,6 +15,8 @@ interface AddBookModalProps {
 }
 
 export default function AddBookModal({ handleClose, book }: AddBookModalProps) {
+  const inputRef = useRef<HTMLInputElement>(null);
+
   const [sku, setSku] = useState<string>("");
   const barcodeRef = useRef<HTMLDivElement | null>(null);
 
@@ -41,7 +43,8 @@ export default function AddBookModal({ handleClose, book }: AddBookModalProps) {
 
   const { mutateAsync } = api.books.create.useMutation();
 
-  const handleSave = async () => {
+  const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
     if (!sku.length) {
       return toast.error("SKU is required");
     }
@@ -80,6 +83,10 @@ export default function AddBookModal({ handleClose, book }: AddBookModalProps) {
     }
   };
 
+  useLayoutEffect(() => {
+    inputRef.current?.focus();
+  }, []);
+
   return (
     <div ref={barcodeRef}>
       <input
@@ -90,7 +97,7 @@ export default function AddBookModal({ handleClose, book }: AddBookModalProps) {
         onChange={() => {}}
       />
       <div className="modal">
-        <div className="modal-box max-w-3xl">
+        <form className="modal-box max-w-3xl" onSubmit={handleSave}>
           <>
             <h3 className="mb-5 text-lg font-bold">Add a new book</h3>
             <div className="mb-3 flex flex-col gap-y-3">
@@ -127,6 +134,7 @@ export default function AddBookModal({ handleClose, book }: AddBookModalProps) {
               />
             </div>
             <input
+              ref={inputRef}
               type="text"
               placeholder="Enter sku (shelf number)"
               className="input-bordered input w-full max-w-xs"
@@ -141,16 +149,14 @@ export default function AddBookModal({ handleClose, book }: AddBookModalProps) {
               >
                 Cancel
               </label>
-              <label
-                htmlFor="my-modal"
-                className="btn-sm btn"
-                onClick={handleSave}
-              >
-                Save
+              <label htmlFor="my-modal">
+                <button className="btn-sm btn" type="submit">
+                  Save
+                </button>
               </label>
             </div>
           </>
-        </div>
+        </form>
       </div>
     </div>
   );
