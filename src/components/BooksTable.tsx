@@ -1,15 +1,13 @@
-import { useState } from "react";
 import dayjs from "dayjs";
 import Image from "next/image";
 
 import type { Book } from "@prisma/client";
 import { formatLongString } from "@/utils/helpers";
 import useBooks from "@/hooks/useBooks";
-import IconBarcode from "./Icons/IconBarcode";
-import PrintBarCodeModal from "./PrintBarCodeModal";
 
 const tableKeys = [
   { value: "image", title: "" },
+  { value: "sku", title: "SKU" },
   { value: "title", title: "Title" },
   { value: "title_long", title: "Title Long" },
   { value: "isbn", title: "ISBN" },
@@ -27,8 +25,6 @@ const tableKeys = [
   { value: "synopsis", title: "Synopsis" },
   { value: "date_published", title: "Date Published" },
   { value: "createdAt", title: "Created At" },
-  { value: "shelf", title: "Shelf" },
-  { value: "sku", title: "SKU" },
 ];
 
 interface BooksTableProps {
@@ -36,9 +32,6 @@ interface BooksTableProps {
   rows: Book[];
 }
 export default function BooksTable({ isLoading, rows }: BooksTableProps) {
-  const [showBarcodeModal, setShowBarcodeModal] = useState(false);
-  const [currentBook, setCurrentBook] = useState<Book | null>(null);
-
   const { selected, setSelected } = useBooks();
 
   const isSelectedAll =
@@ -55,16 +48,6 @@ export default function BooksTable({ isLoading, rows }: BooksTableProps) {
     } else {
       setSelected(rows.map((row) => row.id));
     }
-  };
-
-  const handleClose = () => {
-    setShowBarcodeModal(false);
-    setCurrentBook(null);
-  };
-
-  const handleBarcodeClick = (book: Book) => {
-    setCurrentBook(book);
-    setShowBarcodeModal(true);
   };
 
   return (
@@ -95,7 +78,7 @@ export default function BooksTable({ isLoading, rows }: BooksTableProps) {
               const isSelected = selected.includes(row.id);
               return (
                 <tr key={row.id}>
-                  <th>
+                  <td>
                     <div className="flex items-center justify-center">
                       <span className="mr-4">{index + 1}</span>
                       <input
@@ -111,16 +94,10 @@ export default function BooksTable({ isLoading, rows }: BooksTableProps) {
                           }
                         }}
                         disabled={isLoading}
-                        className="checkbox-primary checkbox mr-4"
+                        className="checkbox-primary checkbox"
                       />
-                      <span
-                        className="h-4 w-4 cursor-pointer fill-primary"
-                        onClick={() => handleBarcodeClick(row)}
-                      >
-                        <IconBarcode />
-                      </span>
                     </div>
-                  </th>
+                  </td>
 
                   <td>
                     <div className="relative h-9 w-9">
@@ -134,6 +111,7 @@ export default function BooksTable({ isLoading, rows }: BooksTableProps) {
                       )}
                     </div>
                   </td>
+                  <td>{row.sku}</td>
                   <td>{formatLongString(row.title)}</td>
                   <td>{formatLongString(row.title_long)}</td>
                   <td>{row.isbn}</td>
@@ -153,17 +131,12 @@ export default function BooksTable({ isLoading, rows }: BooksTableProps) {
                   <td>{formatLongString(row.synopsis)}</td>
                   <td>{row.date_published}</td>
                   <td>{dayjs(row.createdAt).format("DD/MM/YYYY")}</td>
-                  <td>{row.shelf}</td>
-                  <td>{row.sku}</td>
                 </tr>
               );
             })}
           </tbody>
         </table>
       </div>
-      {showBarcodeModal && currentBook && (
-        <PrintBarCodeModal handleClose={handleClose} book={currentBook} />
-      )}
     </>
   );
 }
