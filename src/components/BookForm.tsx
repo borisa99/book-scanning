@@ -1,4 +1,4 @@
-import { useRef, useState, useLayoutEffect } from "react";
+import { useRef, useState, useLayoutEffect, useEffect } from "react";
 import toast from "react-hot-toast";
 
 import AddBookModal from "./AddBookModal";
@@ -41,10 +41,12 @@ export default function BookForm({ disabled }: BookFormProps) {
   };
 
   useLayoutEffect(() => {
-    setTimeout(() => {
-      inputRef.current?.focus();
-    }, 1000);
+    setTimeout(() => inputRef.current?.focus(), 1000);
   }, []);
+
+  useEffect(() => {
+    if (!showModal) inputRef.current?.focus();
+  }, [showModal]);
 
   return (
     <>
